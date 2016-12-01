@@ -29,6 +29,16 @@ class Locale(object):
 
     names = []
 
+    currentframes = {
+        'now':'',
+        'second':'',
+        'minute':'',
+        'hour':'',
+        'day':'',
+        'week':'',
+        'month':'',
+        'year':''
+    }
     timeframes = {
         'now': '',
         'seconds': '',
@@ -75,7 +85,7 @@ class Locale(object):
         '''
 
         humanized = self._format_timeframe(timeframe, delta)
-        if not only_distance:
+        if not only_distance and delta != 0:
             humanized = self._format_relative(humanized, timeframe, delta)
 
         return humanized
@@ -169,8 +179,27 @@ class Locale(object):
         return dict(map(lambda i: (i[1].lower(), i[0] + 1), enumerate(lst[1:])))
 
     def _format_timeframe(self, timeframe, delta):
-
-        return self.timeframes[timeframe].format(abs(delta))
+        print 'delta is {} and timeframe is {}'.format(delta, timeframe)
+        if delta == 0:
+            return self.currentframes[timeframe];
+        else:
+            if abs(delta) > 1:
+                if timeframe == 'second':
+                    timeframe = 'seconds'
+                elif timeframe == 'minute':
+                    timeframe = 'minutes'
+                elif timeframe == 'hour':
+                    timeframe = 'hours'
+                elif timeframe == 'day':
+                    timeframe = 'days'
+                elif timeframe == 'week':
+                    timeframe = 'weeks'
+                elif timeframe == 'month':
+                    timeframe = 'months'
+                elif timeframe == 'year':
+                    timeframe = 'years'
+            print 'abs delta is {} and timeframe is {}'.format(abs(delta), timeframe)
+            return self.timeframes[timeframe].format(abs(delta))
 
     def _format_relative(self, humanized, timeframe, delta):
 
@@ -188,6 +217,17 @@ class EnglishLocale(Locale):
 
     names = ['en', 'en_us', 'en_gb', 'en_au', 'en_be', 'en_jp', 'en_za', 'en_ca']
 
+    currentframes = {
+        'now':'now',
+        'second':'this second',
+        'minute':'this minute',
+        'hour':'this hour',
+        'day':'today',
+        'week':'this week',
+        'month':'this month',
+        'year':'this year'
+    }
+    
     past = '{0} ago'
     future = 'in {0}'
 
@@ -240,6 +280,17 @@ class ItalianLocale(Locale):
     past = '{0} fa'
     future = 'tra {0}'
 
+    currentframes = {
+        'now':'adesso',
+        'second':'questa seconda',
+        'minute':'in questo momento',
+        'hour':'quest\'ora',
+        'day':'oggi',
+        'week':'questa settimana',
+        'month':'questo mese',
+        'year':'quest\'anno'
+    }
+    
     timeframes = {
         'now': 'adesso',
         'seconds': 'qualche secondo',
@@ -273,6 +324,17 @@ class SpanishLocale(Locale):
     names = ['es', 'es_es']
     past = 'hace {0}'
     future = 'en {0}'
+
+    currentframes = {
+        'now':'ahora',
+        'second':'este segundo',
+        'minute':'este minuto',
+        'hour':'esta hora',
+        'day':'hoy',
+        'week':'esta semana',
+        'month':'este mes',
+        'year':'este año'
+    }
 
     timeframes = {
         'now': 'ahora',
@@ -308,6 +370,17 @@ class FrenchLocale(Locale):
     past = 'il y a {0}'
     future = 'dans {0}'
 
+    currentframes = {
+        'now':'maintenant',
+        'second':'cette seconde',
+        'minute':'cette minute',
+        'hour':'cette heure',
+        'day':'aujourd\'hui',
+        'week':'cette semaine',
+        'month':'ce mois-ci',
+        'year':'cette année'
+    }
+    
     timeframes = {
         'now': 'maintenant',
         'seconds': 'quelques secondes',
@@ -345,6 +418,17 @@ class GreekLocale(Locale):
 
     past = '{0} πριν'
     future = 'σε {0}'
+
+    currentframes = {
+        'now':'τώρα',
+        'second':'Αυτή η δεύτερη',
+        'minute':'αυτή τη στιγμή',
+        'hour':'αυτή την ώρα',
+        'day':'σήμερα',
+        'week':'αυτή την εβδομάδα',
+        'month':'αυτο το μηνα',
+        'year':'Αυτή την χρονιά'
+    }
 
     timeframes = {
         'now': 'τώρα',
@@ -797,6 +881,16 @@ class _DeutschLocaleCommonMixin(object):
     past = 'vor {0}'
     future = 'in {0}'
 
+    currentframes = {
+        'now':'gerade eben',
+        'second':'diese Sekunde',
+        'minute':'diese Minute',
+        'hour':'diese Stunde',
+        'day':'heute',
+        'week':'diese Woche',
+        'month':'diesen Monat',
+        'year':'dieses Jahr'
+    }
     timeframes = {
         'now': 'gerade eben',
         'seconds': 'Sekunden',
@@ -1325,7 +1419,7 @@ class CzechLocale(Locale):
                 form = form['future']
             else:
                 form = form['past']
-        delta = abs(delta)
+        delta = abs(delta)  
 
         if isinstance(form, list):
             if 2 <= delta % 10 <= 4 and (delta % 100 < 10 or delta % 100 >= 20):
@@ -1571,11 +1665,11 @@ class MarathiLocale(Locale):
 def _map_locales():
 
     locales = {}
-
+    
     for cls_name, cls in inspect.getmembers(sys.modules[__name__], inspect.isclass):
         if issubclass(cls, Locale):
             for name in cls.names:
-                locales[name.lower()] = cls
+                locales[name.lower()] = cls  
 
     return locales
 
